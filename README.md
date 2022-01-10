@@ -4,9 +4,9 @@ It implements their Lufft UMB-Protocol. You just need a USB-to-RS485 dongle and 
 
 This class does not replace the UMB-config-tool, because its not able to set the config values in your PWS at the moment.
 
-## Usage
-
 ### In your python-script
+
+## Usage single channel
 
 ```python
 from WS_UMB import WS_UMB
@@ -18,8 +18,25 @@ with WS_UMB() as umb:
     else:
         print(value)
 ```
-### As a standalone python-program:
 
-```shell
-$ ./WS_UMB.py 100 111 200 300 460 580
+## Usage multiple channels
+
+```python
+from WS_UMB import WS_UMB
+
+with WS_UMB() as umb:
+    channels = [113, 4630]
+    values, statuses = umb.onlineDataQueryMulti(channels)
+    print(values)
+```
+
+## Usage multiple channels one query
+
+```python
+from WS_UMB import WS_UMB
+
+with WS_UMB() as umb:
+    channels = [113, 4630]
+    values, statuses = umb.onlineDataQueryMultiOneCall(channels)
+    print(values)
 ```
