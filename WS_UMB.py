@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # https://github.com/Tasm-Devil/lufft-python
 
+from asyncore import write
 import time
 import struct
 
@@ -84,17 +85,21 @@ class WS_UMB:
         ./WS_UMB.py 100 111 200 300 460 580
     """
 
-    def __init__(self, device='COM3', baudrate=19200):
-        self.device = device
-        self.baudrate = baudrate
+    #def __init__(self, device='COM3', baudrate=19200):
+    #    self.device = device
+    #    self.baudrate = baudrate
+
+    def __init__(self, writeCallback, readCallback):
+        self.writeCallback = writeCallback
+        self.readCallback = readCallback
     
-    def __enter__(self): # throws a SerialException if it cannot connect to device
-        import serial
-        self.serial = serial.Serial(self.device, baudrate = self.baudrate, parity = serial.PARITY_NONE, stopbits = serial.STOPBITS_ONE, bytesize = serial.EIGHTBITS, interCharTimeout=1)
-        return self
+    #def __enter__(self): # throws a SerialException if it cannot connect to device
+    #    import serial
+    #    self.serial = serial.Serial(self.device, baudrate = self.baudrate, parity = serial.PARITY_NONE, stopbits = serial.STOPBITS_ONE, bytesize = serial.EIGHTBITS, interCharTimeout=1)
+    #    return self
     
-    def __exit__(self, exception_type, exception_value, traceback):
-        self.serial.close()
+    #def __exit__(self, exception_type, exception_value, traceback):
+    #    self.serial.close()
     
     def readFromSerial(self, timeout=1):
         timeout_count = 0
@@ -161,13 +166,15 @@ class WS_UMB:
         tx_frame += self.calc_crc16(tx_frame).to_bytes(2, 'little') + EOT
 
         # Write transmit-frame to serial
-        self.serial.write(tx_frame)
+        self.writeCallback(tx_frame)
+        #self.serial.write(tx_frame)
         #print([hex(c) for c in tx_frame])
         
         ### < --- --- > ###
         
         # Read frame from serial
-        rx_frame = self.readFromSerial()
+        rx_frame = self.readCallback()
+        #rx_frame = self.readFromSerial()
         #print("one call response: " + str(rx_frame))
         #print([hex(c) for c in rx_frame])
         
@@ -260,13 +267,15 @@ class WS_UMB:
         tx_frame += self.calc_crc16(tx_frame).to_bytes(2, 'little') + EOT
         
         # Write transmit-frame to serial
-        self.serial.write(tx_frame)
+        self.writeCallback(tx_frame)
+        #self.serial.write(tx_frame)
         #print([hex(c) for c in tx_frame])
         
         ### < --- --- > ###
         
         # Read frame from serial
-        rx_frame = self.readFromSerial()
+        rx_frame = self.readCallback()
+        #rx_frame = self.readFromSerial()
         #print("single channel response: " + str(rx_frame))
         #print([hex(c) for c in rx_frame])
         

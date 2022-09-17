@@ -21,15 +21,31 @@ def query_multiple_channels_one_call(umb, channels):
     values, statuses = umb.onlineDataQueryMultiOneCall(channels)
     print("one call query list:    " + str(values))
 
+def res():
+    return b'lsjng'
+
+import socket
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+def rec():
+    global s
+    received = s.recv(1024)
+    return received
+
 def main():
 
     single_request = 113                        # single channel request
     channels = [113, 4630, 113, 113, 4630, 113] # channels to request
+    
+    s.connect(("192.168.1.25", 4001))
 
-    with WS_UMB() as umb:
-        query_one_channel(umb, single_request)
-        query_multiple_channels(umb, channels)
-        query_multiple_channels_one_call(umb, channels)
+    umb = WS_UMB(s.sendall, rec)
+    query_one_channel(umb, 100)
+
+    #with WS_UMB(print, res) as umb:
+    #    query_one_channel(umb, single_request)
+    #    query_multiple_channels(umb, channels)
+    #    query_multiple_channels_one_call(umb, channels)
 
 if __name__ == "__main__":
     main()
